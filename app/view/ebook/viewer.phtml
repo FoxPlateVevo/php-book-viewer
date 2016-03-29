@@ -1,0 +1,170 @@
+<?php
+$book = $this->book;
+
+//$book = new Book();
+
+$entryPath          = __PATH__ . "/public/resources/ebook/{$book->getBookId()}";
+$entryPublicPath    = "/resources/ebook/{$book->getBookId()}";
+
+/*
+ * Get PDF information
+ */
+$PDFpath = array_pop(glob("{$entryPath}/*.pdf"));
+$os = get_os();
+
+if($os === "windows"){
+    //For Windows
+    $command = __PATH__ . "/lib/bin/windows/xpdf/pdfinfo.exe {$PDFpath}";
+}else if($os === "linux"){
+    //For Linux
+    $command = __PATH__ . "/lib/bin/linux/xpdf/pdfinfo {$PDFpath}";
+}
+
+$output = null;
+
+exec($command, $output);
+
+$pdfInfo = (object) [
+    "pages"     => null,
+    "size"      => null,
+    "version"   => null,
+];
+
+foreach ($output as $op){
+    $matches = null;
+
+    if(preg_match('/Pages:\s*(\d+)/i', $op, $matches)){
+        $pdfInfo->pages = (int) array_pop($matches);
+    }else if(preg_match('/Page size:\s*(\d+\.?\d*)\s*x\s*(\d+\.?\d*)/i', $op, $matches)){
+        $pdfInfo->size = new stdClass();
+
+        $pdfInfo->size->height  = array_pop($matches);
+        $pdfInfo->size->width   = array_pop($matches);
+    }else if(preg_match('/PDF version:\s*(\d+\.?\d*)/i', $op, $matches)){
+        $pdfInfo->version = array_pop($matches);
+    }
+}
+
+?>
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html lang="en" class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html class="no-js" lang="es"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title><?= $this->pageTitle ?></title>
+        <meta name="description" content="App description">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!--favicon-->
+        <link rel="shortcut icon" type="image/ico" href="/resources/image/favicon.ico">
+        <!--css files-->
+        <link href="https://file.myfontastic.com/6MxRKou359wj5rQPH9Xfgc/icons.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/normalize.css">
+        <link rel="stylesheet" href="/js/vendor/turnjs/magazine.css">
+        <!--js files-->
+        <script src="/js/vendor/jquery-2.1.1.min.js"></script>
+    </head>
+    <body>
+        <!--Navigation-->
+        <div class="nav">
+            <div class="factory-logo">
+                OWL Editorial
+            </div>
+            <div class="navbar">
+                <div class="navbar-container">
+                    <div class="icon first">
+                        <i class="icon-previous"></i>
+                    </div>
+                    <div class="icon previous">
+                        <i class="icon-rewind"></i>
+                    </div>
+                    <div class="navbar-paginator">
+                        <input type="text" data-current-page value="1">
+                        / <?= $pdfInfo->pages ?>
+                    </div>
+                    <div class="icon next">
+                        <i class="icon-fast-forward"></i>
+                    </div>
+                    <div class="icon last">
+                        <i class="icon-next"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="toolbar">
+                <div class="icon">
+                    <i class="icon-zoom-in"></i>
+                </div>
+                <div class="icon">
+                    <i class="icon-zoom-out"></i>
+                </div>
+                <div class="icon">
+                    <i class="icon-magnifying-glass"></i>
+                </div>
+                <div class="icon slider">
+                    <i class="icon-thumbnails"></i>
+                </div>
+                <div class="icon zoom">
+                    <i class="icon-arrows-expand"></i>
+                </div>
+            </div>
+        </div>
+        <!--Viewport-->
+        <div class="magazine-viewport">
+            <div class="container">
+                <div class="magazine">
+                    <!-- Next button -->
+                    <div ignore="1" class="next-button"></div>
+                    <!-- Previous button -->
+                    <div ignore="1" class="previous-button"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Thumbnails -->
+        <div class="thumbnails">
+            <div>
+                <ul>
+                    <?php
+                    for($i = 1; $i <= $pdfInfo->pages; $i++){
+                        ?>
+                        <li data-page="<?= $i ?>">
+                            <img src="<?= "{$entryPublicPath}/pages/small-page-{$i}.png" ?>">
+                            <span><?= $i ?></span>
+                        </li>
+                        <?php
+                    }
+                    ?>
+                </ul>
+            </div>	
+        </div>
+        <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
+        <script src="/js/vendor/turnjs/main.js"></script>
+        <script src="/js/vendor/jquery.mousewheel.min.js"></script>
+        <script src="/js/vendor/turnjs/hash.js"></script>
+        <script type="text/javascript">
+            /*
+             * Set global vars
+             */
+            var book = {
+                pages       : <?= $pdfInfo->pages ?>,
+                pageWidth   : <?= $pdfInfo->size->width ?>,
+                pageHeight  : <?= $pdfInfo->size->height ?>,
+                path        : "<?= $entryPublicPath ?>"
+            };
+            
+            // Load the HTML4 version if there's not CSS transform
+            yepnope({
+                test: window.Modernizr.csstransforms,
+                yep : ['/js/vendor/turnjs/turn.js'],
+                nope: ['/js/vendor/turnjs/turn.html4.js'],
+                both: [
+                    '/js/vendor/turnjs/zoom.js', 
+                    '/js/vendor/turnjs/magazine.core.js'
+                ],
+                complete: window.initApp
+            });
+        </script>
+    </body>
+</html>

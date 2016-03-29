@@ -1,0 +1,56 @@
+<?php
+$books = $this->books;
+?>
+<!-- begin content -->
+<div class="row app-container">
+    <div class="row">
+        <div class="column">
+            <a class="button button-primary" href="/ebook/create">Create</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+            <h1>Scorms</h1>
+            <table class="u-full-width news-list">
+                <thead>
+                    <tr>
+                        <th>bookId</th>
+                        <th>Author</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if($books){
+                        foreach ($books as $book){
+//                            $book = new Book();
+                            ?>
+                            <tr>
+                                <td>
+                                    <?= $book->getBookId() ?>
+                                </td>
+                                <td>
+                                    <?= $book->getAuthor() ?>
+                                </td>
+                                <td>
+                                    <a href="/ebook/<?= $book->getBookId() ?>">Ver Ebook</a>
+                                </td>
+                            </tr>    
+                            <?php
+                        }
+                    }else{
+                        ?>
+                        <tr>
+                            <td colspan="3">
+                                No hay libros por mostrar...
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- end content -->

@@ -1,0 +1,14 @@
+<?php
+require_once __PATH__ . "/app/config.php";
+
+?>
+<div class="row app-bar">
+    <div class="column">
+        <a href="/" class="option">Home</a>
+        <?php foreach (app_configs::getNamespaces() as $namespace): ?>
+            <a href="/<?= $namespace ?>" class="option">
+                <?= $namespace ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>

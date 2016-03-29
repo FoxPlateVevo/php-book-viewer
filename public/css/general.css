@@ -1,0 +1,26 @@
+/* Skeleton custom */
+.container{
+    padding: 0rem;
+}
+/* App general styles */
+.app-bar{
+    background-color: #33C3F0;
+}
+.app-bar div a.option{
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    padding: 1rem;
+}
+.app-bar div a.option:hover{
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.app-container{
+    margin-top: 1rem;
+    padding: 0.5rem 2rem;
+}
+.app-footer{
+    background-color: #33C3F0;
+    color: #fff;
+    padding: 1rem;
+}

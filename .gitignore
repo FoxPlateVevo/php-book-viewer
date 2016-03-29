@@ -1,0 +1,7 @@
+nbproject/
+node_modules/
+lib/composer.lock
+lib/vendor/
+public/resources/ebook
+.idea/
+npm-debug.log
