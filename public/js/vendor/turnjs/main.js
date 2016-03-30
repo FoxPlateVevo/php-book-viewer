@@ -9,6 +9,20 @@ function initApp() {
         return;
     }
     
+    var directionHandler = function(direction){
+        return function(e){
+            e.preventDefault();
+            
+            if($magazineViewport.zoom("value") === 1){
+                if(direction === "left"){
+                    $magazine.turn("previous");
+                }else if(direction === "right"){
+                    $magazine.turn("next");
+                }
+            }
+        };
+    };
+    
     // Create the flipbook
     $magazine.turn({
         //display mode
@@ -52,13 +66,19 @@ function initApp() {
             missing: function (event, pages) {
 //                console.log("missing...");
 //                console.log(pages);
-                
+
                 // Add pages that aren't in the magazine
                 $.each(pages, function(index, page){
                     addPage(page, $magazine);
                 });
             }
         }
+    })
+    .mousewheelOrientation({
+        up      : directionHandler("left"),
+        down    : directionHandler("right"),
+        left    : directionHandler("left"),
+        right   : directionHandler("right")
     });
 
     // Zoom.js
@@ -250,39 +270,69 @@ $(document).ready(function(){
      * Thumbnails
      */
     var animationProccessing;
-    var $magazine = $(".magazine");
-    var $thumbnails = $(".thumbnails");
-    var $magazineViewport = $(".magazine-viewport");
-    var thumbnailWidth = $thumbnails.find("li").outerWidth(true) + 5;
+    var $magazine           = $(".magazine");
+    var $thumbnails         = $(".thumbnails");
+    var $magazineViewport   = $(".magazine-viewport");
+    var thumbnailWidth      = $thumbnails.find("li").outerWidth(true) + 5;
+    
+    var loadSliderView = function(){
+        /*
+         * Load pages in current slider view
+         */
+        var thumbnailsWidth = $thumbnails.width();
+        var currentLeft = parseInt($thumbnails.find("ul").css("margin-left"), 10);
+
+        var currentSliderPage = Math.abs(currentLeft) / thumbnailWidth;
+        var numberOfViewsThumbnails = Math.round(thumbnailsWidth / thumbnailWidth);
+        
+        for(var i = currentSliderPage; i <= currentSliderPage + numberOfViewsThumbnails; i++){
+            if(i > 0 && i <= window.book.pages && !$magazine.turn("hasPage", i)){
+                addPage(i, $magazine);
+            }
+        }
+    };
+    
+    var directionHandler = function(direction){
+        return function(e){
+            e.preventDefault();
+            
+            if(animationProccessing){
+                return;
+            }
+
+            var currentLeft = parseInt($(this).css("margin-left"), 10);
+            var thumbnailsWidth = $thumbnails.width();
+            var width = $(this).width();
+
+            if(direction === "left" && (width - Math.abs(currentLeft)) > thumbnailsWidth){
+                animationProccessing = true;
+
+                $(this).animate({"margin-left": currentLeft - thumbnailWidth}, 100, function(){
+                    animationProccessing = false;
+                    
+                    loadSliderView();
+                });
+            }else if(direction === "right" && currentLeft < 0){
+                animationProccessing = true;
+
+                $(this).animate({"margin-left": currentLeft + thumbnailWidth}, 100, function(){
+                    animationProccessing = false;
+                    
+                    loadSliderView();
+                });
+            }
+        };
+    };
     
     $thumbnails.find("ul")
     .css({
         "width": (thumbnailWidth * $thumbnails.find("li").length) + "px"
     })
-    .mousewheel(function(e){
-        e.preventDefault();
-
-        if(animationProccessing){
-            return;
-        }
-        
-        var currentLeft = parseInt($(this).css("margin-left"), 10);
-        var thumbnailsWidth = $thumbnails.width();
-        var width = $(this).width();
-        
-        if((e.deltaY < 0 || e.deltaX < 0) && (width - Math.abs(currentLeft)) > thumbnailsWidth){ //left
-            animationProccessing = true;
-            
-            $(this).animate({"margin-left": currentLeft - thumbnailWidth}, 100, function(){
-                animationProccessing = false;
-            });
-        }else if((e.deltaY > 0 || e.deltaX > 0) && currentLeft < 0){ //rigth
-            animationProccessing = true;
-            
-            $(this).animate({"margin-left": currentLeft + thumbnailWidth}, 100, function(){
-                animationProccessing = false;
-            });
-        }
+    .mousewheelOrientation({
+        up      : directionHandler("left"),
+        down    : directionHandler("right"),
+        left    : directionHandler("left"),
+        right   : directionHandler("right")
     });
     
     /*
@@ -340,13 +390,18 @@ $(document).ready(function(){
             /*
              * Set thumbnail position
              */
-            var thumbnailWidth = $thumbnails.find("li").outerWidth(true) + 5;
+            var currentPage = $magazine.turn("page");
             
-            $thumbnails.find("ul").css("marginLeft", -($magazine.turn("page") - 1) * thumbnailWidth);
+            $thumbnails.find("ul").css("marginLeft", -(currentPage - 1) * thumbnailWidth);
+            
+            /*
+             * Load current slider view
+             */
+            loadSliderView();
         }
     });
     
-    $(document).click(function(e){
+    $(document).on("click mousewheel", function(e){
         /*
          * click event handler in the document for thumbnails containers
          */

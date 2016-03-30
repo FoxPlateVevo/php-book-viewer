@@ -1,63 +1,66 @@
 /*
  * Magazine core functions
  */
-function addPage(page, book) {
-
-    var id, pages = book.turn("pages");
-
+function addPage(pageNumber, book) {
     // Create a new element for this page
     var element = $("<div>");
-
+    
     // Add the page to the flipbook
-    if (book.turn('addPage', element, page)) {
-
+    if (book.turn("addPage", element, pageNumber)) {
         // Add the initial HTML
         // It will contain a loader indicator and a gradient
-        element.html('<div class="gradient"></div><div class="loader"></div>');
-
+        element.html('<div class="gradient"></div><div class="loader"><div class="loader-content"><div class="loader-icon"></div></div></div>');
+        
         // Load the page
-        loadPage(page, element);
+        loadPage(pageNumber, element);
     }
 }
 
 function loadPage(page, pageElement) {
+    var $thumbnails = $(".thumbnails");
+    
     // Create an image element
-    var img = $("<img>");
+    var $img = $("<img>");
     
-    img.mousedown(function (e) {
+    $img
+    .mousedown(function (e) {
         e.preventDefault();
-    });
-    
-    img.load(function () {
+    })
+    .attr("src", window.book.path + "/pages/small-page-" + page + ".png")
+    .load(function () {
         // Set the size
-        $(this).css({width: '100%', height: '100%'});
-
-        // Add the image to the page after loaded
-        $(this).appendTo(pageElement);
-
+        $(this).css({
+            width: "100%",
+            height: "100%"
+        })
+        .appendTo(pageElement);
+        
         // Remove the loader indicator
-        pageElement.find('.loader').remove();
+        pageElement.find(".loader").remove();
+        
+        // Add background image to thumbnail page
+        $thumbnails.find("li[data-page=" + page + "] img")
+        .attr("src", window.book.path + "/pages/small-page-" + page + ".png")
+        .parent()
+        .css("backgroundImage", "none");
     });
-    
-    // Load the page
-    img.attr("src", window.book.path + "/pages/small-page-" + page + ".png");
     
     loadRegions(page, pageElement);
 }
 
 // Zoom in / Zoom out
 function zoomTo(event) {
-    setTimeout(function () {
-        if ($('.magazine-viewport').data().regionClicked) {
-            $('.magazine-viewport').data().regionClicked = false;
+    var $magazineViewPort = $(".magazine-viewport");
+    
+    if ($magazineViewPort.data().regionClicked) {
+        $magazineViewPort.data().regionClicked = false;
+    } else {
+        if ($magazineViewPort.zoom("value") === 1) {
+            $magazineViewPort.zoom("zoomIn", event);
         } else {
-            if ($('.magazine-viewport').zoom('value') === 1) {
-                $('.magazine-viewport').zoom('zoomIn', event);
-            } else {
-                $('.magazine-viewport').zoom('zoomOut');
-            }
+            $magazineViewPort.zoom("zoomOut");
         }
-    }, 1);
+    }
 }
 
 // Load regions
@@ -151,7 +154,7 @@ function loadSmallPage(page, pageElement) {
 
     img.css({width: '100%', height: '100%'});
     
-    img.unbind('load');
+    img.unbind("load");
     
     // Loadnew page
     img.attr('src',  window.book.path + "/pages/small-page-" + page + ".png");
@@ -305,21 +308,10 @@ function selectThumbnail(page){
 }
 
 /*
- * Extensions
+ * Extensions App
  * Version 0.1
  */
 (function($){
-    /*
-     * action : optional String [auto]
-     */
-    $.fn.MyFunction = function() {
-        $(this).each(function(){
-            console.log(this);
-        });
-        
-        return this;
-    };
-    
     $.message = function(stringMessage) {
         var $message = $("<div>").attr({
            class: "message-book" 

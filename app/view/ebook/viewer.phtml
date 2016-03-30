@@ -130,7 +130,7 @@ foreach ($output as $op){
                     for($i = 1; $i <= $pdfInfo->pages; $i++){
                         ?>
                         <li data-page="<?= $i ?>">
-                            <img src="<?= "{$entryPublicPath}/pages/small-page-{$i}.png" ?>">
+                            <img>
                             <span><?= $i ?></span>
                         </li>
                         <?php
@@ -140,8 +140,9 @@ foreach ($output as $op){
             </div>	
         </div>
         <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
-        <script src="/js/vendor/turnjs/main.js"></script>
         <script src="/js/vendor/jquery.mousewheel.min.js"></script>
+        <script src="/js/plugins.js"></script>
+        <script src="/js/vendor/turnjs/main.js"></script>
         <script src="/js/vendor/turnjs/hash.js"></script>
         <script type="text/javascript">
             /*

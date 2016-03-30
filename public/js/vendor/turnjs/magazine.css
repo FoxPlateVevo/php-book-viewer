@@ -15,6 +15,7 @@ body{
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0.5rem;
     font-size: 0.9rem;
+    margin-right: 0.7rem;
     display: none;
 }
 
@@ -133,12 +134,23 @@ body{
 }
 
 .magazine-viewport .loader{
-    background-image:url(/js/vendor/turnjs/pics/loader.gif);
-    width:22px;
-    height:22px;
+    display: table;
+    width:100%;
+    height:100%;
     position:absolute;
-    top:280px;
-    left:219px;
+    top: 0rem;
+    left: 0rem;
+}
+.magazine-viewport .loader .loader-content{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+.magazine-viewport .loader .loader-content .loader-icon{
+    display: inline-block;
+    background-image:url(/js/vendor/turnjs/pics/loader.gif);
+    width:24px;
+    height:24px;
 }
 
 .magazine-viewport .shadow{
@@ -256,10 +268,16 @@ body{
 }
 
 .thumbnails li{
+    background-image:url(/js/vendor/turnjs/pics/loader.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #fff;
     list-style:none;
     display:inline-block;
     position: relative;
     cursor: pointer;
+    height: 16rem;
+    width: 12rem;
     
     -webkit-transition:-webkit-transform 60ms;
     -moz-transition:-webkit-transform 60ms;
@@ -269,10 +287,8 @@ body{
 }
 
 .thumbnails li img{
-    float: left;
-    height: 16rem;
-    width: 12rem;
-    background-color: #fff;
+    height: 100%;
+    width: 100%;
 }
 
 .thumbnails li span{
