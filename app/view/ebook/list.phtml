@@ -1,8 +1,27 @@
 <?php
-$books = $this->books;
+$books          = $this->books;
+$errorCode      = $this->errorCode;
+
+
+$messageError = null;
+
+if($errorCode === "upload_error"){
+    $messageError = "Error al subir el archivo";
+}else if($errorCode == Book::IMPORT_ERROR_COMMAND){
+    $messageError = "Error al convertir el documento pdf";
+}else if($errorCode == Book::IMPORT_ERROR_TO_GET_PDF_INFORMATION){
+    $messageError = "Error obtener información del documento pdf";
+}
 ?>
 <!-- begin content -->
 <div class="row app-container">
+    <?php
+    if($messageError){
+        ?>
+        <h5><?= $messageError ?></h5>
+        <?php
+    }
+    ?>
     <div class="row">
         <div class="column">
             <a class="button button-primary" href="/ebook/create">Create</a>
@@ -10,7 +29,7 @@ $books = $this->books;
     </div>
     <div class="row">
         <div class="column">
-            <h1>Scorms</h1>
+            <h1>Books</h1>
             <table class="u-full-width news-list">
                 <thead>
                     <tr>
@@ -33,7 +52,7 @@ $books = $this->books;
                                     <?= $book->getAuthor() ?>
                                 </td>
                                 <td>
-                                    <a href="/ebook/<?= $book->getBookId() ?>">Ver Ebook</a>
+                                    <a href="/ebook/<?= $book->getBookId() ?>" target="_blank">Ver Ebook</a>
                                 </td>
                             </tr>    
                             <?php

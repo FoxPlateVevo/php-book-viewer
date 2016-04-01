@@ -58,10 +58,6 @@ class file{
         
         $fileName = self::cleanName($fileName);
         
-        !is_file($directoryDestinyPath) && !is_dir($directoryDestinyPath) && folder::create($directoryDestinyPath);
-        
-        $fullDestinyPath = "{$directoryDestinyPath}/{$fileName}";
-        
         //return object
         $returnData = (object) [
           "file"    => null,
@@ -70,6 +66,10 @@ class file{
         ];
         
         if($fileName && $fileTempName && $fileError === UPLOAD_ERR_OK){
+            !is_file($directoryDestinyPath) && !is_dir($directoryDestinyPath) && folder::create($directoryDestinyPath);
+        
+            $fullDestinyPath = "{$directoryDestinyPath}/{$fileName}";
+            
             if(move_uploaded_file($fileTempName, $fullDestinyPath)){
                 $file["path"] = $fullDestinyPath;
                 

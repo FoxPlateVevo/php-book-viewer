@@ -41,4 +41,62 @@
 
         return this;
     };
+    
+    $.fn.fullScreen = function(){
+        return $.fullScreen.open(this);
+    };
+    
+    $.fullScreen = {
+        open: function(element){
+            var nodeElement = element ? $(element).get(0) : $("body").get(0);
+            
+            if(nodeElement.requestFullscreen){
+                nodeElement.requestFullscreen();
+            }else if(nodeElement.msRequestFullscreen){
+                nodeElement.msRequestFullscreen();
+            }else if(nodeElement.mozRequestFullScreen){
+                nodeElement.mozRequestFullScreen();
+            }else if(nodeElement.webkitRequestFullScreen){
+                nodeElement.webkitRequestFullScreen();
+            }else{
+                return false;
+            }
+
+            return true;
+        },
+        exit: function(){
+            if(document.exitFullscreen){
+                document.exitFullscreen();
+            }else if(document.msExitFullscreen){
+                document.msExitFullscreen();
+            }else if(document.mozCancelFullScreen){
+                document.mozCancelFullScreen();
+            }else if(document.webkitExitFullscreen){
+                document.webkitExitFullscreen();
+            }else{
+                return false;
+            }
+
+            return true;
+        },
+        handler: function(settings){
+            var defaults = {
+                onOpen  : function(){},
+                onExit  : function(){}
+            };
+
+            var final = $.extend(true, {}, defaults, settings);
+
+            $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function(e){
+                if($.fullScreen.is()){
+                    final.onOpen.call(this, e);
+                }else{
+                    final.onExit.call(this, e);
+                }
+            });
+        },
+        is: function(){
+            return document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        }
+    };
 }(jQuery));

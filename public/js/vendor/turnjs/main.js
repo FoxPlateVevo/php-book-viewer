@@ -34,7 +34,7 @@ function initApp() {
         // Duration in millisecond
         duration: 1000,
         // Hardware acceleration
-        acceleration: !isChrome(),
+        acceleration: true,
         // Enables gradients
         gradients: true,
         // Auto center this flipbook
@@ -103,12 +103,9 @@ function initApp() {
             },
             zoomIn: function(){
                 $magazine.removeClass("animated").addClass("zoom-in");
-                
-                $(".toolbar .icon.zoom").html("<i class='icon-arrows-compress'></i>");
             },
             zoomOut: function () {
                 $magazine.addClass("animated").removeClass("zoom-in");
-                $(".toolbar .icon.zoom").html("<i class='icon-arrows-expand'></i>");
                 
                 resizeViewport();
             }
@@ -335,28 +332,38 @@ $(document).ready(function(){
         right   : directionHandler("right")
     });
     
+    $thumbnails.find(".controls .option").click(function(e){
+        var $thisContext = $thumbnails.find("ul");
+        
+        if($(this).hasClass("left")){
+            directionHandler("right").call($thisContext, e);
+        }else if($(this).hasClass("right")){
+            directionHandler("left").call($thisContext, e);
+        }
+    });
+    
     /*
      * Navbar 
      */
-    $(".navbar-container .icon.first").click(function(){
+    $(".navbar .icon.first").click(function(){
         $magazine.turn("page", 1);
     });
     
-    $(".navbar-container .icon.previous").click(function(){
+    $(".navbar .icon.previous").click(function(){
         $magazine.turn("previous");
     });
     
-    $(".navbar-container .icon.next").click(function(){
+    $(".navbar .icon.next").click(function(){
         $magazine.turn("next");
     });
     
-    $(".navbar-container .icon.last").click(function(){
+    $(".navbar .icon.last").click(function(){
         var totalPages = $magazine.turn("pages");
         
         $magazine.turn("page", totalPages);
     });
     
-    $(".navbar-container input[data-current-page]").on("input", function(){
+    $(".navbar input[data-current-page]").on("input", function(){
         var page = $(this).val();
         
         if(page && page > 0 && page <= window.book.pages){
@@ -370,13 +377,24 @@ $(document).ready(function(){
      * Navigation 
      */
     //toolbar
-    //zoom
+    //fullscreen
     $(".toolbar .icon.zoom")
     .bind('click', function () {
-        if($(this).find("i.icon-arrows-expand").length){
-            $magazineViewport.zoom("zoomIn");
-        }else if($(this).find("i.icon-arrows-compress").length){
-            $magazineViewport.zoom("zoomOut");
+        var $icon = $(this).find("i");
+        
+        if($icon.hasClass("icon-arrows-expand")){
+            $("body").fullScreen();
+        }else if($icon.hasClass("icon-arrows-compress")){
+            $.fullScreen.exit();
+        }
+    });
+    
+    $.fullScreen.handler({
+        onOpen: function(){
+            $(".toolbar .icon.zoom").html("<i class='icon-arrows-compress'></i>");
+        },
+        onExit: function(){
+            $(".toolbar .icon.zoom").html("<i class='icon-arrows-expand'></i>");
         }
     });
     
@@ -398,6 +416,41 @@ $(document).ready(function(){
              * Load current slider view
              */
             loadSliderView();
+        }
+    });
+    
+    //zoom initial
+    $(".toolbar .icon.zoom-initial").click(function(){
+        $magazineViewport.zoom("zoomOut");
+    });
+    
+    //zoom out
+    $(".toolbar .icon.zoom-out").click(function(){
+        $magazineViewport.zoom("zoomOut");
+    });
+    
+    //zoom in
+    $(".toolbar .icon.zoom-in").click(function(){
+        $magazineViewport.zoom("zoomIn");
+    });
+    
+    //switch
+    $(".nav .switch").click(function(){
+        var $icon   = $(this).find("i");
+        var $rowNav = $(".nav .row");
+        
+        if($icon.hasClass("icon-triangle-up")){
+            $rowNav.hide();
+            
+            $icon
+            .removeClass("icon-triangle-up")
+            .addClass("icon-triangle-down");
+        }else if($icon.hasClass("icon-triangle-down")){
+            $rowNav.show();
+            
+            $icon
+            .removeClass("icon-triangle-down")
+            .addClass("icon-triangle-up");
         }
     });
     

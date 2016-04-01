@@ -54,16 +54,6 @@ function get_domain() {
     return "//{$_SERVER["HTTP_HOST"]}";
 }
 
-function get_user_session(){
-    $success = null;
-    
-    if(isset($_SESSION["user"])){
-        $success = unserialize($_SESSION["user"]);
-    }
-    
-    return $success;
-}
-
 /*
  * Possible values:
  * - windows
@@ -103,31 +93,6 @@ function get_url_from_string($string){
     return $url ? $url : null;
 }
 
-function create_upload_token($path, $maxSize, $extensions){
-    $cleandPath = file::cleanPath($path);
-    
-    //create a Upload Service
-    //create constraints
-    $constraints = new UploadService_Config_Constraints();
-    $constraints->setMaxSize($maxSize);
-    $constraints->setExtensions($extensions);
-
-    //create configs
-    $config = new UploadService_Config();
-    $config->setPath($cleandPath);
-    $config->setConstraints($constraints);
-
-    $upload = new UploadService();
-    $upload->setConfig($config);
-
-    $token = $upload->token->generate();
-
-    //save this in storage session
-    $_SESSION["upload"][$token] = serialize($upload);
-    
-    return $token;
-}
-
 function has_extension($path, $extension){
     return strtolower(pathinfo($path, PATHINFO_EXTENSION)) === strtolower($extension);
 }
@@ -144,26 +109,55 @@ function vd($expresion) {
     echo "</pre>";
 }
 
-//lol
-function __post(){
-    echo "<pre>";
-    foreach ($_POST as $key => $post){
-        echo "
-            \$var = \$request->param(\"{$key}\");";
+/**
+ * Get PDF information
+ * 
+ * @param string $filename It is the PDF source path to get information
+ * @return stdClass The <b>stdClass</b> instance that contains information 
+ * about PDF or <b>NULL</b> on failure
+ */
+function PDF_get_information($filename){
+    /*
+     * Get current operative system 
+     */
+    $os = get_os();
+    
+    if($os === "windows"){
+        //For Windows
+        $command = __PATH__ . "/lib/bin/windows/xpdf/pdfinfo.exe {$filename}";
+    }else if($os === "linux"){
+        //For Linux
+        $command = __PATH__ . "/lib/bin/linux/xpdf/pdfinfo {$filename}";
     }
-    echo "</pre>";
-    exit;
-}
 
-function __class($object){
-    $reflect = new ReflectionClass($object);
-    $props   = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+    $output = $return =  null;
 
-    echo "<pre>";
-    foreach ($props as $prop) {
-        echo "
-        \"{$prop->getName()}\" => \$da,";
+    exec($command, $output, $return);
+    
+    if($return){
+        return null;
     }
-    echo "</pre>";
-    exit;
+    
+    $pdfInfo = (object) [
+        "pages"     => null,
+        "size"      => null,
+        "version"   => null,
+    ];
+
+    foreach ($output as $op){
+        $matches = null;
+
+        if(preg_match('/Pages:\s*(\d+)/i', $op, $matches)){
+            $pdfInfo->pages = (int) array_pop($matches);
+        }else if(preg_match('/Page size:\s*(\d+\.?\d*)\s*x\s*(\d+\.?\d*)/i', $op, $matches)){
+            $pdfInfo->size = new stdClass();
+
+            $pdfInfo->size->height  = array_pop($matches);
+            $pdfInfo->size->width   = array_pop($matches);
+        }else if(preg_match('/PDF version:\s*(\d+\.?\d*)/i', $op, $matches)){
+            $pdfInfo->version = array_pop($matches);
+        }
+    }
+    
+    return $pdfInfo;
 }
