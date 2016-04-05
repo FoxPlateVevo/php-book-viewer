@@ -34,6 +34,7 @@ $pdfInfo = PDF_get_information($PDFpath);
         <link rel="stylesheet" href="/css/skeleton.css">
         <link rel="stylesheet" href="/css/general-responsive.css">
         <link rel="stylesheet" href="/js/vendor/turnjs/magazine.css">
+        <link rel="stylesheet" href="/js/vendor/colorpicker/colorPicker.css">
         <!--js files-->
         <script src="/js/vendor/jquery-2.1.1.min.js"></script>
     </head>
@@ -70,8 +71,8 @@ $pdfInfo = PDF_get_information($PDFpath);
                         <div class="icon zoom-out">
                             <i class="icon-zoom-out"></i>
                         </div>
-                        <div class="icon zoom-initial">
-                            <i class="icon-magnifying-glass"></i>
+                        <div class="icon clipboard">
+                            <i class="icon-clipboard-pencil"></i>
                         </div>
                         <div class="icon slider">
                             <i class="icon-thumbnails"></i>
@@ -124,8 +125,63 @@ $pdfInfo = PDF_get_information($PDFpath);
                 </div>	
             </div>
         </div>
+        <!--notes-->
+        <div id="note">
+            <div class="row">
+                <div class="note">
+                    <div class="note-controls">
+                        <button type="button" class="close">
+                            <i class="icon-arrows-compress"></i>
+                        </button>
+                    </div>
+                    <h4>Crear nueva nota</h4>
+                    <div class="note-form">
+                        <form>
+                            <input type="hidden" name="page">
+                            <textarea name="description"></textarea>
+                            <span>Seleccionar color</span>
+                            <input id="color-picker" type="text" name="color" value="#FFE459">
+                            <div class="u-cf"></div>
+                            <button type="submit">
+                                <i class="icon-pencil"></i> Guardar nota
+                            </button>
+                        </form>
+                    </div>
+                    <h4>Mis notas</h4>
+                    <div class="note-container"></div>
+                </div>
+            </div>
+            <!--template-->
+            <div class="template" id="note-item-template">
+                <div class="item">
+                    <div class="visible">
+                        <div class="description"></div>
+                        <div class="controls">
+                            <button type="button" class="edit">
+                                Editar
+                            </button>
+                            <button type="button" class="delete">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hidden">
+                        <form>
+                            <button type="submit" class="save">
+                                Guardar
+                            </button>
+                            <button type="button" class="cancel">
+                                Cancelar
+                            </button>
+                            <textarea name="description"></textarea>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
         <script src="/js/vendor/jquery.mousewheel.min.js"></script>
+        <script src="/js/vendor/colorpicker/jquery.colorPicker.js"></script>
         <script src="/js/plugins.js"></script>
         <script src="/js/vendor/turnjs/main.js"></script>
         <script src="/js/vendor/turnjs/hash.js"></script>
@@ -134,6 +190,7 @@ $pdfInfo = PDF_get_information($PDFpath);
              * Set global vars
              */
             var book = {
+                id          : <?= $book->getBookId() ?>,
                 pages       : <?= $pdfInfo->pages ?>,
                 pageWidth   : <?= $pdfInfo->size->width ?>,
                 pageHeight  : <?= $pdfInfo->size->height ?>,

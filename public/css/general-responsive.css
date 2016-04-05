@@ -18,7 +18,10 @@
 
 /* Larger than tablet */
 @media (min-width: 750px) {
-    
+    .note{
+        width: 80rem;
+        border-radius: 0.5rem;
+    }
 }
 
 /* Larger than desktop */

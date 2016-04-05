@@ -307,6 +307,58 @@ function selectThumbnail(page){
     $navBarPaginator.val(page);
 }
 
+/* Note */
+function addNoteItem($container, noteId, description, color){
+    var $template   = $("#note-item-template");
+    var $item       = $template.children().clone();
+    
+    var $visiblePart    = $item.find(".visible");
+    var $hiddenPart     = $item.find(".hidden");
+    
+    $item.css("backgroundColor", color);
+    
+    //visible part
+    $visiblePart.find(".description").text(description);
+    
+    $visiblePart.find("button.delete").click(function(){
+        $.get("/ebook/" + window.book.id + "/note/" + noteId + "/delete", function(success){
+            if(success){
+                $item.slideUp(function(){
+                    $(this).remove();
+                });
+            }else{
+                $.message("Ah ocurrido un error, vuelve a intentarlo");
+            }
+        });
+    });
+    
+    $visiblePart.find("button.edit").click(function(){
+        $visiblePart.hide();
+        $hiddenPart.show();
+    });
+    
+    //hidden part
+    $hiddenPart.find("textarea").val(description);
+    
+    $hiddenPart.find("form")
+    .attr("action", "/ebook/" + window.book.id + "/note/" + noteId)
+    .send(function(success){
+        if(success){
+            $visiblePart.find(".description").text($hiddenPart.find("textarea").val());
+            $hiddenPart.find("button.cancel").click();
+        }else{
+            $.message("Ah ocurrido un error al intentar guardar los datos");
+        }
+    });
+    
+    $hiddenPart.find("button.cancel").click(function(){
+        $visiblePart.show();
+        $hiddenPart.hide();
+    });
+
+    $container.prepend($item);
+}
+
 /*
  * Extensions App
  * Version 0.1

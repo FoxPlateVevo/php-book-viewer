@@ -8,10 +8,15 @@ class Book extends Model {
     const IMPORT_ERROR_TO_GET_PDF_INFORMATION = 1;
     
     protected $bookId;
+    protected $name;
     protected $author;
     
     function getBookId() {
         return $this->bookId;
+    }
+
+    function getName() {
+        return $this->name;
     }
 
     function getAuthor() {
@@ -20,6 +25,10 @@ class Book extends Model {
 
     function setBookId($bookId) {
         $this->bookId = $bookId;
+    }
+
+    function setName($name) {
+        $this->name = $name;
     }
 
     function setAuthor($author) {

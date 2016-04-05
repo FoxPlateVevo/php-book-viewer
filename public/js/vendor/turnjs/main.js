@@ -263,14 +263,23 @@ function initApp() {
 }
 
 $(document).ready(function(){
+    var $magazine           = $(".magazine");
+    var $magazineViewport   = $(".magazine-viewport");
+    
     /*
      * Thumbnails
      */
     var animationProccessing;
-    var $magazine           = $(".magazine");
-    var $thumbnails         = $(".thumbnails");
-    var $magazineViewport   = $(".magazine-viewport");
-    var thumbnailWidth      = $thumbnails.find("li").outerWidth(true) + 5;
+    var $thumbnails             = $(".thumbnails");
+    var thumbnailWidth          = $thumbnails.find("li").outerWidth(true) + 5;
+    
+    /*
+     * Note
+     */
+    var $note           = $("#note");
+    var $noteContainer  = $note.find(".note-container");
+    var $noteForm       = $note.find(".note-form");
+    
     
     var loadSliderView = function(){
         /*
@@ -419,9 +428,34 @@ $(document).ready(function(){
         }
     });
     
-    //zoom initial
-    $(".toolbar .icon.zoom-initial").click(function(){
-        $magazineViewport.zoom("zoomOut");
+    //note clipboard
+    $(".toolbar .icon.clipboard").click(function(){
+        $note.css("display", "table");
+        
+        /*
+         * Get notes of this page
+         */
+        var page = $magazine.turn("page");
+        
+        $.get("/ebook/" + window.book.id + "/note", {
+            page: page
+        }, function(notes){
+            if(notes.length){
+                //delete content
+                $noteContainer.empty();
+                
+                $.each(notes, function(){
+                    addNoteItem($noteContainer, this.id, this.description, this.color);
+                });
+            }else{
+                $noteContainer.html('<span>No hay notas guardadas</span>');
+            }
+        }, "json");
+        
+        /*
+         * Setting form
+         */
+        $noteForm.find("form input[name=page]").val(page);
     });
     
     //zoom out
@@ -452,6 +486,28 @@ $(document).ready(function(){
             .removeClass("icon-triangle-down")
             .addClass("icon-triangle-up");
         }
+    });
+    
+    /*
+     * Note
+     */
+    //close
+    $note.find("button.close").click(function(){
+        $note.hide();
+    });
+    
+    //form
+    $noteForm.find("form")
+    .attr("action", "/ebook/" + window.book.id + "/note/create")
+    .send(function(note){
+        $noteForm.find("form textarea").val(null);
+        
+        addNoteItem($noteContainer, note.id, note.description, note.color);
+    }, "json");
+    
+    //color picker
+    $("#color-picker").colorPicker({
+        showHexField: false
     });
     
     $(document).on("click mousewheel", function(e){

@@ -7,11 +7,14 @@ $messageError = null;
 
 if($errorCode === "upload_error"){
     $messageError = "Error al subir el archivo";
-}else if($errorCode == Book::IMPORT_ERROR_COMMAND){
-    $messageError = "Error al convertir el documento pdf";
-}else if($errorCode == Book::IMPORT_ERROR_TO_GET_PDF_INFORMATION){
-    $messageError = "Error obtener información del documento pdf";
+}else if(!is_null($errorCode)){
+    if($errorCode == Book::IMPORT_ERROR_COMMAND){
+        $messageError = "Error al convertir el documento pdf";
+    }else if($errorCode == Book::IMPORT_ERROR_TO_GET_PDF_INFORMATION){
+        $messageError = "Error obtener información del documento pdf";
+    }
 }
+
 ?>
 <!-- begin content -->
 <div class="row app-container">
@@ -34,6 +37,7 @@ if($errorCode === "upload_error"){
                 <thead>
                     <tr>
                         <th>bookId</th>
+                        <th>Name</th>
                         <th>Author</th>
                         <th>Options</th>
                     </tr>
@@ -49,10 +53,14 @@ if($errorCode === "upload_error"){
                                     <?= $book->getBookId() ?>
                                 </td>
                                 <td>
+                                    <?= $book->getName() ?>
+                                </td>
+                                <td>
                                     <?= $book->getAuthor() ?>
                                 </td>
                                 <td>
-                                    <a href="/ebook/<?= $book->getBookId() ?>" target="_blank">Ver Ebook</a>
+                                    <a href="/ebook/<?= $book->getBookId() ?>" target="_blank">Ver</a>
+                                    <a href="/ebook/<?= $book->getBookId() ?>/delete">Eliminar</a>
                                 </td>
                             </tr>    
                             <?php
@@ -60,7 +68,7 @@ if($errorCode === "upload_error"){
                     }else{
                         ?>
                         <tr>
-                            <td colspan="3">
+                            <td colspan="4">
                                 No hay libros por mostrar...
                             </td>
                         </tr>
